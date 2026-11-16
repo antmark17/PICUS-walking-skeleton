@@ -13,6 +13,8 @@
   <script defer th:src="@{/js/picus-layout.js}" src="/js/picus-layout.js"></script>
   <script defer th:if="${area == 'OPT' and activePage == 'requests'}"
           th:src="@{/js/picus-opt-requests.js}" src="/js/picus-opt-requests.js"></script>
+  <script defer th:if="${area == 'BANCO'}"
+          th:src="@{/js/picus-banco.js}" src="/js/picus-banco.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Vai al contenuto</a>
