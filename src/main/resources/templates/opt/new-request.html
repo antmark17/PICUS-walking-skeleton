@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/app-layout :: layout(~{::main}, 'Nuova richiesta', 'OPT', 'new')}">
+<head><title>PICUS · Nuova richiesta</title></head>
+<body>
+  <main class="main" id="main-content" tabindex="-1">
+    <div class="content form-content">
+      <nav class="breadcrumbs" aria-label="Percorso di navigazione">
+        <a th:href="@{/opt/requests}" href="/opt/requests">Le mie richieste</a>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        <span aria-current="page">Nuova richiesta</span>
+      </nav>
+
+      <div class="page-heading form-page-heading">
+        <h1>Nuova richiesta</h1>
+        <p>Specifica la misura da richiedere al Banco Alimentare.</p>
+      </div>
+
+      <section class="gusto-form-section" aria-labelledby="requestDetailsTitle">
+        <div class="section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5v-2h6v2M8.5 10h7M8.5 14h7M8.5 18h5"/></svg>
+        </div>
+        <h2 id="requestDetailsTitle">Dettagli della richiesta</h2>
+
+        <!-- th:action su POST permette a Spring Security/Thymeleaf di includere CSRF. -->
+        <form id="newRequestForm" class="new-request-form" method="post"
+              th:action="@{/opt/requests}" th:object="${requestForm}">
+          <div class="form-field">
+            <label for="measureRequest">Misura richiesta <span class="required-mark" aria-hidden="true">*</span></label>
+            <p id="measureHelp" class="field-help">Seleziona la misura per cui desideri presentare una richiesta.</p>
+            <div class="measure-select-wrap">
+              <select id="measureRequest" th:field="*{misuraRichiesta}" name="misuraRichiesta"
+                      required aria-required="true" th:attr="aria-invalid=${#fields.hasErrors('misuraRichiesta')} ? 'true' : null,
+                               aria-describedby=${#fields.hasErrors('misuraRichiesta')} ? 'measureHelp measureError' : 'measureHelp'"
+                      th:classappend="${#fields.hasErrors('misuraRichiesta')} ? 'is-invalid' : ''">
+                <option value="" disabled>Seleziona una misura</option>
+                <option th:each="misura : ${measures}" th:value="${misura}" th:text="${misura}">Misura</option>
+              </select>
+            </div>
+            <p class="field-error" id="measureError" role="alert"
+               th:if="${#fields.hasErrors('misuraRichiesta')}"
+               th:errors="*{misuraRichiesta}">Seleziona una misura valida</p>
+          </div>
+
+          <div class="form-actions">
+            <a class="secondary-button" th:href="@{/opt/requests}" href="/opt/requests">Annulla</a>
+            <button type="submit" class="primary-button form-submit">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+              Invia richiesta
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
