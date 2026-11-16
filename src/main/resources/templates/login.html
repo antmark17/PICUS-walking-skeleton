@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>PICUS - Login Test</title>
+</head>
+
+<body>
+
+<h1>Login PICUS - Test G1</h1>
+
+<p th:if="${param.error}">
+    Credenziali non valide.
+</p>
+
+<p th:if="${param.logout}">
+    Logout effettuato correttamente.
+</p>
+
+<form th:action="@{/login}" method="post">
+
+    <label for="username">Username:</label>
+    <input type="text"
+           id="username"
+           name="username"
+           required>
+
+    <label for="password">Password:</label>
+    <input type="password"
+           id="password"
+           name="password"
+           required>
+
+    <button type="submit">Accedi</button>
+
+</form>
+
+</body>
+</html>
