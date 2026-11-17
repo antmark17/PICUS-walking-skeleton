@@ -23,34 +23,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            RoleBasedAuthenticationSuccessHandler successHandler
+        HttpSecurity http,
+        RoleBasedAuthenticationSuccessHandler successHandler
     ) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/login", "/error",
-                                "/css/**", "/js/**", "/images/**"
-                        ).permitAll()
-                        .requestMatchers("/opt/**").hasRole("OPT")
-                        .requestMatchers("/banco/**").hasRole("BANCO")
-                        .anyRequest().authenticated()
-                )
-                .csrf(Customizer.withDefaults())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .successHandler(successHandler)
-                        .failureUrl("/login?error")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                )
-                .build();
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/login", "/error",
+                    "/css/**", "/js/**",
+                    "/images/**", "/assets/**"
+                ).permitAll()
+                .requestMatchers("/opt/**").hasRole("OPT")
+                .requestMatchers("/banco/**").hasRole("BANCO")
+                .anyRequest().authenticated()
+            )
+            .csrf(Customizer.withDefaults())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .successHandler(successHandler)
+                .failureUrl("/login?error")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+            )
+            .build();
     }
 }

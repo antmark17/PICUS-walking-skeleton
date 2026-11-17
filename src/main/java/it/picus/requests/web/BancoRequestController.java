@@ -87,8 +87,9 @@ public class BancoRequestController {
     }
 
     private static String organizationLabel(UUID organizationId) {
-        // G2 espone un UUID, non il nome dell'OPT. Non inventiamo informazioni.
-        return "OPT · " + organizationId.toString().substring(0, 8);
+        String id = organizationId.toString();
+        return "OPT · " + id.substring(0, 8)
+            + "…" + id.substring(id.length() - 4);
     }
 
     private static String statusLabel(RequestStatus status) {

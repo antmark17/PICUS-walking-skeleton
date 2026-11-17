@@ -1,0 +1,178 @@
+/* PICUS — Login definitivo per Thymeleaf. Stile derivato dal prototipo grafico approvato.
+   File dedicato: non modifica le altre viste. Nessuna libreria CSS esterna. */
+:root {
+  --picus-green: #395E14;
+  --picus-green-dark: #2d4b10;
+  --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { font-family: var(--font); color: #172033; background: #fbfcfa; }
+body { margin: 0; min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--picus-green); outline-offset: 3px; }
+.skip-link { position: fixed; z-index: 1000; top: -100px; left: 12px; padding: 10px 14px; background: #fff; border: 1px solid #e8edf3; color: var(--picus-green); }
+.skip-link:focus { top: 12px; }
+svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+.brand { display: flex; align-items: center; gap: 12px; height: 28px; }
+.brand-picus { font-size: 17px; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.brand-separator { height: 19px; width: 1px; background: #e2e8f0; }
+.bank-logo { display: block; width: 128px; height: auto; max-height: 33px; object-fit: contain; }
+.form-field { display: flex; flex-direction: column; }
+.form-field input { width: 100%; min-height: 44px; border: 1px solid #cbd5df; border-radius: 5px; background: #fff; padding: 11px 13px; font-size: 13px; color: #1a2433; box-shadow: 0 1px 1px rgba(16,24,40,.025); }
+.primary-button { display: inline-flex; align-items: center; gap: 6px; padding: 0 13px; height: 34px; border-radius: 7px; border: 1px solid var(--picus-green); background: var(--picus-green); color: #fff; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.primary-button:hover { background: var(--picus-green-dark); }
+.primary-button:disabled { opacity: .6; }
+
+/* Login PICUS: composizione Stitch reinterpretata con il design system già approvato.
+   Cambia solo la pagina login; nessuna dipendenza Tailwind. */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: #fbfcfa;
+}
+.login-waves {
+  position: absolute;
+  inset: auto 0 0;
+  height: clamp(270px, 42vh, 420px);
+  z-index: -1;
+  pointer-events: none;
+}
+.login-waves svg { width: 100%; height: 100%; display: block; stroke: none; fill: none; }
+.login-header {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(24px, 4.2vw, 68px);
+}
+.login-header .brand { height: auto; gap: 14px; }
+.login-header .brand-picus { color: #172033; font-size: 23px; font-weight: 800; letter-spacing: -.045em; }
+.login-header .brand-separator { height: 24px; background: #dce3df; }
+.login-header .bank-logo { width: 194px; height: auto; max-height: 55px; object-fit: contain; }
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px 50px;
+  position: relative;
+  z-index: 1;
+}
+.login-content {
+  width: 100%;
+  max-width: 442px;
+  border: 1px solid rgba(22, 42, 18, .10);
+  border-radius: 15px;
+  padding: 39px 39px 37px;
+  background: #fff;
+  box-shadow: 0 17px 48px rgba(24, 37, 22, .095), 0 3px 10px rgba(24,37,22,.025);
+}
+.login-heading { text-align: center; margin-bottom: 31px; }
+.login-heading h1 {
+  margin: 0 0 9px;
+  color: #182030;
+  font-size: 27px;
+  line-height: 1.25;
+  letter-spacing: -.038em;
+  font-weight: 800;
+}
+.login-heading p { margin: 0; color: #758092; font-size: 12.5px; line-height: 1.65; }
+.login-form { display: flex; flex-direction: column; gap: 19px; }
+.login-field { gap: 8px; }
+.login-field label { font-size: 12px; color: #344156; font-weight: 700; }
+.login-input-wrap { position: relative; display: flex; align-items: center; }
+.login-field-icon { position: absolute; width: 18px; height: 18px; left: 14px; pointer-events: none; color: #94a0af; }
+.login-field .login-input-wrap input {
+  height: 49px;
+  min-height: 49px;
+  padding: 10px 15px 10px 42px;
+  border-radius: 8px;
+  border-color: #dbe2e8;
+  background: #fff;
+  font-size: 12.5px;
+  box-shadow: 0 1px 2px rgba(15, 32, 25, .035);
+}
+.login-field .login-input-wrap input:focus {
+  border-color: #769767;
+  box-shadow: 0 0 0 3px rgba(57, 94, 20, .12);
+}
+.login-field .login-input-wrap input::placeholder { color: #9ba5b0; }
+.login-password-wrap input { padding-right: 54px !important; }
+.password-toggle {
+  position: absolute;
+  inset-block: 0;
+  right: 4px;
+  width: 45px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #8895a4;
+  border: 0;
+  border-radius: 6px;
+}
+.password-toggle:hover { color: var(--picus-green); }
+.password-toggle svg { width: 18px; height: 18px; }
+.login-error { margin: -5px 0 0; color: #ac3a28; font-size: 12px; line-height: 1.55; }
+.login-submit {
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  margin-top: 6px;
+  border-radius: 8px;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .005em;
+}
+.login-footer {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, .9);
+  text-align: center;
+  padding: 0 15px 20px;
+  font-size: 11px;
+  letter-spacing: .02em;
+}
+@media (max-width: 640px) {
+  .login-header { min-height: 70px; padding-inline: 20px; }
+  .login-header .brand { gap: 10px; }
+  .login-header .brand-picus { font-size: 19px; }
+  .login-header .brand-separator { height: 20px; }
+  .login-header .bank-logo { width: clamp(116px, 40vw, 160px); max-height: 46px; }
+  .login-main { padding: 23px 20px 45px; }
+  .login-content { padding: 32px 25px 30px; border-radius: 12px; }
+  .login-heading h1 { font-size: 24px; }
+  .login-heading { margin-bottom: 26px; }
+  .login-waves { height: clamp(195px, 35vh, 345px); }
+  .login-footer { padding-bottom: 17px; font-size: 10px; }
+}
+@media (max-width: 350px) {
+  .login-header { padding-inline: 14px; }
+  .login-header .brand { gap: 8px; }
+  .login-header .brand-picus { font-size: 17px; }
+  .login-header .brand-separator { height: 18px; }
+  .login-header .bank-logo { width: 116px; }
+  .login-main { padding: 15px 15px 35px; }
+  .login-content { padding: 28px 20px 27px; }
+  .login-heading h1 { font-size: 22px; }
+  .login-field .login-input-wrap input { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-page *, .login-page *::before, .login-page *::after { transition: none !important; }
+}
+
+/* Messaggi reali forniti da Spring Security, non generati dal browser. */
+.login-notice { margin: -10px 0 19px; padding: 10px 12px; border-radius: 7px; border: 1px solid #d4e4c7; background: #f3f8ef; color: #395E14; font-size: 12px; line-height: 1.5; }
+.login-error { margin: -2px 0 0; padding: 10px 12px; border: 1px solid #f4c9c2; border-radius: 7px; background: #fff8f6; color: #a42a1e; }
+@media (max-height: 620px) and (min-width: 641px) {
+  .login-main { align-items: flex-start; }
+  .login-content { margin-block: 8px 24px; }
+}
