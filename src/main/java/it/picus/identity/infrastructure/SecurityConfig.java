@@ -3,6 +3,7 @@ package it.picus.identity.infrastructure;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,12 +29,14 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/health", "/error", "/login"
+                                "/login", "/error",
+                                "/css/**", "/js/**", "/images/**"
                         ).permitAll()
                         .requestMatchers("/opt/**").hasRole("OPT")
                         .requestMatchers("/banco/**").hasRole("BANCO")
-                        .anyRequest().denyAll()
+                        .anyRequest().authenticated()
                 )
+                .csrf(Customizer.withDefaults())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
@@ -47,7 +50,6 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll()
                 )
                 .build();
     }
