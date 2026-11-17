@@ -1,103 +1,324 @@
-# PICUS — base comune del Walking Skeleton
+# PICUS — Walking Skeleton
 
-## Stato del progetto
-Questa consegna è lo **scheletro tecnico condiviso**, NON l'MVP completo.
-Contiene struttura Maven/Spring Boot, moduli, contratti Java, endpoint `/health`, sicurezza iniziale **deny-all** sulle route applicative, database H2 su file e due test di avvio.
-**Non contiene:** account di prova, login operativo, controller del flusso richieste, adapter JPA, salvataggio o modifica dello stato: sono attività dei tre gruppi.
+## Project Overview
 
-## Prerequisiti
-- JDK **21** (`java -version`)
-- Apache **Maven 3.6.3+** (`mvn -version`)
-- Git
+PICUS is a web application developed for Banco Alimentare Campania as part of a university Software Architecture and Design project.
 
-> L'archivio NON include Maven Wrapper (`mvnw`/`mvnw.cmd`): non usare quei comandi fino all'eventuale generazione del wrapper da una macchina con Maven installato. Per avere il wrapper nel repository, dopo l'installazione di Maven un referente può eseguire `mvn -N wrapper:wrapper` e committare i file generati.
+The Walking Skeleton integrates the work of three development groups into a single Spring Boot application:
 
-## Avvio del primo giorno (Windows PowerShell)
-```powershell
-java -version
-mvn -version
-mvn clean verify
-mvn spring-boot:run
-```
-Da un secondo terminale:
-```powershell
-Invoke-WebRequest http://localhost:8080/health | Select-Object -ExpandProperty Content
-```
-Risultato atteso: `PICUS baseline avviata`.
-Le altre rotte non sono attive e sono bloccate finche' G1 non implementa i controlli.
+- **G1 — Identity & Organizations:** authentication, authorization, user roles and organization identification.
+- **G2 — Requests:** request management, business rules, state transitions and database persistence.
+- **G3 — Frontend:** web interfaces, navigation, forms and integration with the backend.
 
-## Importazione nel repository GitHub già esistente
-Non creare un secondo repository Git in questa cartella. Copiare il **contenuto** della cartella dentro la radice del repository locale del gruppo (es. GR-12-Repository). Prima di copiare, confrontare i file già presenti e non sovrascrivere `README.md`, `pom.xml` o configurazioni condivise senza revisione.
+The current implementation provides an integrated and executable foundation for the PICUS application. It represents the Walking Skeleton, not the final production-ready MVP.
 
-Da PowerShell, nella radice **effettiva del repository Git**:
-```powershell
-git status
-git switch -c chore/bootstrap-walking-skeleton
-git add .
-git commit -m "chore: base comune walking skeleton PICUS"
-git push -u origin chore/bootstrap-walking-skeleton
-```
-Aprire una Pull Request verso `main`. Dopo l'unione, tutti aggiornano `main` e creano i branch G1, G2, G3.
+## Technology Stack
 
-## Moduli e proprietari
-| Area | Responsabile | Cosa implementare |
+| Component | Technology |
+|---|---|
+| Language | Java 21 |
+| Framework | Spring Boot 3.5.16 |
+| Security | Spring Security |
+| Frontend | Thymeleaf, HTML, CSS, JavaScript |
+| Database | H2 |
+| Persistence | Spring Data JPA |
+| Build system | Maven |
+| Testing | JUnit 5, Spring Boot Test, MockMvc |
+| Version control | Git and GitHub |
+
+## Architecture
+
+PICUS follows a modular monolithic architecture.
+
+The main application modules are:
+
+### Identity and Organizations — G1
+
+Responsible for:
+- Authentication through Spring Security.
+- Login and logout.
+- Role-based authorization.
+- Identification of the authenticated actor.
+- Organization identification for OPT users.
+- Separation between BANCO and OPT permissions.
+
+Supported roles:
+- `BANCO`
+- `OPT`
+
+The organization associated with an OPT user is derived from the authenticated principal, never from browser-submitted data.
+
+### Requests — G2
+
+Responsible for:
+- Request creation.
+- Request ownership.
+- Request retrieval.
+- Business rules and state transitions.
+- Persistence through JPA and H2.
+
+The main application service is `RequestService`, which implements the `RequestUseCases` contract.
+
+The current request states are:
+
+- `DA_VALUTARE`
+- `IN_ELABORAZIONE`
+
+The transition to `IN_ELABORAZIONE` is initiated by a BANCO user.
+
+### Web and Frontend — G3
+
+Responsible for:
+- Thymeleaf pages.
+- Login interface.
+- OPT request dashboard.
+- OPT request creation form.
+- OPT request details.
+- BANCO request dashboard.
+- BANCO request details.
+- Integration with backend use cases.
+
+The frontend communicates with the application through Spring MVC controllers and does not access JPA repositories directly.
+
+## Main Application Flows
+
+### OPT workflow
+
+1. The OPT user logs in.
+2. The application redirects the user to `/opt/requests`.
+3. The user can view requests belonging to their organization.
+4. The user can create a new request.
+5. The application associates the request with the authenticated OPT organization.
+6. The user can view the request details and its current status.
+
+### BANCO workflow
+
+1. The BANCO user logs in.
+2. The application redirects the user to `/banco/requests`.
+3. The user can view all submitted requests.
+4. The user can open a request detail page.
+5. The user can start processing a request.
+6. The request status changes from `DA_VALUTARE` to `IN_ELABORAZIONE`.
+
+### Security and ownership
+
+- OPT users can access only requests belonging to their organization.
+- BANCO users can access the BANCO request area.
+- Authorization is enforced on the backend.
+- CSRF protection remains enabled for POST forms.
+- Request ownership is derived server-side from the authenticated principal.
+
+## Main HTTP Endpoints
+
+| Method | Endpoint | Access |
 |---|---|---|
-| `identity/`, `organizations/`, Security | G1 | Login/logout reale, OPT A, OPT B, Banco, attore autenticato, lookup organizzazione, autorizzazione per ruolo |
-| `requests/{api,application,domain,infrastructure}` | G2 | ServiceRequest, regole di stato, repository e adapter JPA, RequestService, controlli di ownership |
-| `requests/web`, `templates/`, `static/`, E2E | G3 | Controller, form, viste OPT/Banco, test funzionali e integrazione |
-
-### Contratti condivisi (NON cambiare senza accordo dei tre gruppi)
-- `identity.api.CurrentActorProvider.currentActor() : AuthenticatedActor`
-- `identity.api.AuthenticatedActor`: username, role, `Optional<UUID> organizationId`
-- `organizations.api.OrganizationLookup.existsById(UUID) : boolean`
-- `requests.api.RequestUseCases`: `submitRequest`, `listMine`, `getMine`, `listForBanco`, `getForBanco`, `startProcessing`
-- `requests.domain.ServiceRequestRepository`: `save`, `findById`, `findByIdAndOrganizationId`, `findByOrganizationId`, `findAll`
-
-`RequestUseCases` NON ha ancora un'implementazione Spring; G2 la fornirà. G3 potrà creare schermate statiche o usare finti servizi **solo nei test**, ma non va introdotto un mock persistente nell'applicazione distribuita.
-
-## Regole di autorizzazione da implementare
-- `BANCO`: consultazione e avvio elaborazione.
-- `OPT`: invio e consultazione delle sole richieste della propria organizzazione.
-- L'organizzazione proprietaria si ricava **sempre dal principal autenticato lato server**, mai da un campo inviato dal browser.
-- Le viste distinte NON sostituiscono i controlli backend.
-- Security iniziale: accesso alle route applicative negato; G1 la sostituisce con Spring Security, mantenendo CSRF attivo sui form.
-
-## Flusso e perimetro
-Login OPT → invio misura richiesta (nessuna verifica obbligatoria di misura attiva) → login Banco → avvio elaborazione → consultazione OPT. Gli stati iniziali sono `DA_VALUTARE` e `IN_ELABORAZIONE`, ancora proposti e da validare. Nessuna registrazione di dati identificativi degli assistiti. Catalogo dinamico, operatori, erogatori, appuntamenti, report e notifiche sono fuori MVP.
-
-## Endpoint HTTP concordati
-| Metodo | Path | Attore |
-|---|---|---|
-| GET/POST | `/login` | Pubblico; gestito da G1 (pagina integrata da G3) |
-| POST | `/logout` | Autenticato |
+| GET | `/login` | Public |
+| POST | `/login` | Public, Spring Security |
+| POST | `/logout` | Authenticated |
 | GET | `/opt/requests` | OPT |
 | GET | `/opt/requests/new` | OPT |
 | POST | `/opt/requests` | OPT |
-| GET | `/opt/requests/{id}` | OPT proprietaria |
+| GET | `/opt/requests/{id}` | OPT, owner only |
 | GET | `/banco/requests` | BANCO |
 | GET | `/banco/requests/{id}` | BANCO |
 | POST | `/banco/requests/{id}/start` | BANCO |
+| GET | `/health` | Authenticated |
 
-## Checklist avvio comune
-- [ ] `mvn clean verify` eseguito su almeno una macchina del gruppo
-- [ ] `/health` restituisce `PICUS baseline avviata`
-- [ ] `main` integrato, tre branch creati dopo l'integrazione
-- [ ] Prima di modificare le API pubbliche, i tre referenti concordano la firma
-- [ ] G1 prende in carico la sostituzione di `BootstrapSecurityConfig`
-- [ ] G2 prende in carico l'implementazione di `RequestUseCases` e l'adapter JPA
-- [ ] G3 prende in carico controller, template e test end-to-end
+## Demo Accounts
 
-## Sicurezza e dati di prova
-- H2 su file locale `picus-dev.mv.db` (ignorato da Git); configurazione **solo locale**, non per la produzione.
-- Password fittizie di prova: crearle nel lavoro di G1 tramite encoder, **non** includerle nel repository o in documenti di consegna.
-- Non disattivare CSRF né inserire credenziali reali nel codice.
-- Evitare campo note o descrizioni libere che possano contenere dati personali degli assistiti.
+The Walking Skeleton includes three synthetic accounts:
 
-## Criteri di accettazione del Walking Skeleton
-1. Banco e due OPT accedono con ruoli corretti.
-2. La OPT A invia una misura, che è salvata con proprietario e stato iniziale.
-3. Il Banco consulta e avvia l'elaborazione.
-4. La OPT A rilegge la richiesta aggiornata dopo il riavvio.
-5. La OPT B non può leggere la richiesta A: QS-SEC-01.
-6. Form, payload e persistenza sono privi di identificativi dell'assistito: QS-PRI-01.
-7. Risultati dei test automatici registrati, non solo descritti.
+| Role | Username | Organization |
+|---|---|---|
+| BANCO | `banco` | None |
+| OPT A | `opt_a` | OPT A |
+| OPT B | `opt_b` | OPT B |
+
+All three accounts use the same password, configured through the `PICUS_DEMO_PASSWORD` environment variable.
+
+Passwords are encoded using BCrypt and are not stored in the repository.
+
+If the environment variable is not configured, the application generates a random password at startup. Therefore, configure the variable before logging in.
+
+These accounts are intended exclusively for local development and testing.
+
+## Prerequisites
+
+- JDK 21
+- Git
+- Windows PowerShell, macOS Terminal or Linux shell
+
+The repository includes the Maven Wrapper. Maven does not need to be installed separately.
+
+Verify Java:
+
+```bash
+java -version
+```
+
+The installed version must be Java 21.
+
+## Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/antmark17/PICUS-walking-skeleton.git
+cd PICUS-walking-skeleton
+```
+
+Update the local repository:
+
+```bash
+git switch main
+git pull origin main
+```
+
+### Configure the demo password
+
+Windows PowerShell:
+
+```powershell
+$env:PICUS_DEMO_PASSWORD = "PicusDemo2026!"
+```
+
+macOS / Linux:
+
+```bash
+export PICUS_DEMO_PASSWORD="PicusDemo2026!"
+```
+
+Use a temporary password exclusively for local development. Do not commit credentials.
+
+### Run tests
+
+Windows:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+macOS / Linux:
+
+```bash
+./mvnw clean verify
+```
+
+### Start the application
+
+Windows:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+macOS / Linux:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Open the application:
+
+http://localhost:8080/login
+
+## Database
+
+The application uses H2 with Spring Data JPA.
+
+Local development configuration:
+
+- Database type: H2
+- Storage: file-based
+- Database file: `picus-dev.mv.db`
+- Hibernate schema management: `update`
+
+The test environment uses a separate in-memory H2 database with `create-drop`.
+
+The local database file is development data and must not be committed to Git.
+
+## Testing
+
+The project includes unit, integration, security and web tests.
+
+The integrated end-to-end tests cover:
+
+- Login for BANCO, OPT A and OPT B.
+- OPT request creation.
+- Request ownership assignment.
+- BANCO request consultation.
+- Starting request processing.
+- Updated status visibility.
+- OPT organization isolation.
+- Authorization between roles.
+- CSRF protection.
+- Form validation.
+
+The integrated branch was previously verified with:
+
+```text
+Tests run: 94
+Failures: 0
+Errors: 0
+Skipped: 0
+
+BUILD SUCCESS
+```
+
+Run `clean verify` again after every relevant change to verify the current version.
+
+## Continuous Integration
+
+GitHub Actions is configured to automate Maven verification.
+
+The CI workflow is intended to:
+- Check out the repository.
+- Set up Java 21.
+- Run Maven verification.
+- Report the build result on GitHub.
+
+Pull Requests targeting `main` should be checked before merging.
+
+## Project Scope and Limitations
+
+The current implementation is a Walking Skeleton.
+
+The following elements are still outside the current implementation or require further development:
+
+- Production authentication and user management.
+- Official and dynamic measure catalog.
+- Real organization registry.
+- Production database configuration.
+- Advanced request lifecycle and additional statuses.
+- Appointment management.
+- Operator and service-provider management.
+- Notifications and reporting.
+- Production deployment and operational configuration.
+
+The available measures (`Misura A`, `Misura B`, `Misura C`) are temporary development values and do not represent the final official catalog.
+
+No personal identifying information about beneficiaries should be introduced into test data.
+
+## Development Workflow
+
+The main branch contains the integrated implementation.
+
+For future development:
+
+1. Pull the latest `main`.
+2. Create a dedicated feature branch.
+3. Implement the assigned functionality.
+4. Run `clean verify`.
+5. Push the branch.
+6. Open a Pull Request towards `main`.
+7. Review and merge only after the checks pass.
+
+Avoid modifying shared API contracts without agreement between the responsible groups.
+
+---
+
+**Repository:** https://github.com/antmark17/PICUS-walking-skeleton
+
+**Project:** PICUS — Banco Alimentare Campania
+
+**Status:** Integrated Walking Skeleton — G1 + G2 + G3
