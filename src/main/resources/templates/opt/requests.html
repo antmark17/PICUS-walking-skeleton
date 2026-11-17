@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/app-layout :: layout(~{::main}, 'Le mie richieste', 'OPT', 'requests')}">
+<head><title>PICUS · Le mie richieste</title></head>
+<body>
+  <main class="main" id="main-content" tabindex="-1">
+    <div class="content">
+      <div class="page-heading">
+        <h1>Le mie richieste</h1>
+        <p>Consulta le richieste inviate dalla tua organizzazione e segui il loro stato di avanzamento.</p>
+      </div>
+
+      <section class="requests" aria-label="Elenco richieste">
+        <div class="toolbar" role="search">
+          <div class="toolbar-left">
+            <label class="search-field" for="searchRequests">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.5 4.5"/></svg>
+              <span class="sr-only">Cerca per ID o misura richiesta</span>
+              <input id="searchRequests" type="search" autocomplete="off" placeholder="Cerca per ID pratica o misura...">
+            </label>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <label class="status-filter" for="statusFilter">
+              <span class="sr-only">Filtra per stato</span>
+              <select id="statusFilter">
+                <option value="all">Stato: tutti</option>
+                <option value="DA_VALUTARE">Da valutare</option>
+                <option value="IN_ELABORAZIONE">In elaborazione</option>
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </label>
+            <button type="button" id="resetFilters" class="reset-filter" hidden>Reimposta</button>
+          </div>
+          <div class="toolbar-right">
+            <span id="resultCount" class="result-count" aria-live="polite"
+                  th:text="|${#lists.size(requests)} richieste|">0 richieste</span>
+            <a class="primary-button" th:href="@{/opt/requests/new}" href="/opt/requests/new"
+               aria-label="Vai alla pagina Nuova richiesta">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Nuova richiesta
+            </a>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th scope="col">DATA INVIO</th>
+                <th scope="col">STATO</th>
+                <th scope="col">ID PRATICA</th>
+                <th scope="col">MISURA RICHIESTA</th>
+                <th scope="col" class="actions-heading"><span class="sr-only">Azioni</span></th>
+              </tr>
+            </thead>
+            <tbody id="requestsBody">
+              <tr class="request-row" th:each="request : ${requests}"
+                  th:attr="data-id=${request.id},data-status=${request.stato},data-search=${request.searchText}">
+                <td class="date-cell" th:text="${request.dataInvio}">—</td>
+                <td>
+                  <span class="status-pill" th:classappend="${request.stato == 'IN_ELABORAZIONE'} ? 'processing' : 'to-evaluate'">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4l3 3M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18"/></svg>
+                    <span th:text="${request.statoLabel}">Da valutare</span>
+                  </span>
+                </td>
+                <td><abbr class="id-code" th:text="${request.idBreve}" th:title="${request.id}">—</abbr></td>
+                <td class="measure-cell" th:text="${request.misuraRichiesta}">—</td>
+                <td style="text-align: right">
+                  <a class="action-detail" th:href="@{/opt/requests/{id}(id=${request.id})}" href="#">
+                    Dettaglio
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="mobileCards" class="mobile-cards" aria-label="Elenco richieste per dispositivi mobili">
+          <article class="mobile-card request-card" th:each="request : ${requests}"
+                   th:attr="data-id=${request.id},data-status=${request.stato},data-search=${request.searchText}">
+            <div class="mobile-card-top">
+              <span class="status-pill" th:classappend="${request.stato == 'IN_ELABORAZIONE'} ? 'processing' : 'to-evaluate'">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4l3 3M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18"/></svg>
+                <span th:text="${request.statoLabel}">Da valutare</span>
+              </span>
+              <span class="mobile-date" th:text="${request.dataInvio}">—</span>
+            </div>
+            <h2 class="mobile-measure" th:text="${request.misuraRichiesta}">—</h2>
+            <div class="mobile-card-bottom">
+              <abbr class="id-code" th:text="${request.idBreve}" th:title="${request.id}">—</abbr>
+              <a class="action-detail" th:href="@{/opt/requests/{id}(id=${request.id})}" href="#">
+                Dettaglio
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <p class="empty-state" id="emptyState" role="status" th:hidden="${not #lists.isEmpty(requests)}"
+           hidden>Nessuna richiesta corrisponde ai filtri selezionati.</p>
+        <div class="pagination" aria-label="Paginazione richieste">
+          <span id="rangeCount">0 richieste</span>
+          <button id="previousPage" class="pagination-button" type="button" aria-label="Pagina precedente" disabled>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span class="page-number" id="pageNumber" aria-live="polite">1 / 1</span>
+          <button id="nextPage" class="pagination-button" type="button" aria-label="Pagina successiva" disabled>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

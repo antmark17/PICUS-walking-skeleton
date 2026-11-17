@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#395E14">
+  <meta name="description" content="Accesso a PICUS — Banco Alimentare Campania">
+  <title>PICUS · Accedi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/picus-login.css}" href="/css/picus-login.css">
+  <script defer th:src="@{/js/picus-login.js}" src="/js/picus-login.js"></script>
+</head>
+<body class="login-page">
+  <a class="skip-link" href="#loginMain">Vai al contenuto</a>
+
+  <!-- Onde decorative della grafica PICUS. -->
+  <div class="login-waves" aria-hidden="true">
+    <svg viewBox="0 0 1440 420" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation" focusable="false">
+      <path d="M0 242 C200 231 360 143 650 174 C940 211 1204 94 1440 115 L1440 420 L0 420 Z" fill="#526C34" opacity=".91"/>
+      <path d="M0 290 C230 298 395 185 703 194 C980 207 1210 157 1440 156 L1440 420 L0 420 Z" fill="#395E14"/>
+      <path d="M635 420 C800 383 1130 158 1440 126 L1440 420 Z" fill="#F68B1F"/>
+    </svg>
+  </div>
+
+  <header class="login-header" aria-label="PICUS — Banco Alimentare Campania">
+    <div class="brand login-brand">
+      <span class="brand-picus">PICUS</span>
+      <span class="brand-separator" aria-hidden="true"></span>
+      <img class="bank-logo" th:src="@{/assets/banco-alimentare.svg}" src="/assets/banco-alimentare.svg" alt="Banco Alimentare">
+    </div>
+  </header>
+
+  <main class="login-main" id="loginMain" tabindex="-1">
+    <section class="login-content" aria-labelledby="loginTitle">
+      <div class="login-heading">
+        <h1 id="loginTitle">Accedi a PICUS</h1>
+        <p>Inserisci le tue credenziali per continuare.</p>
+      </div>
+
+      <p class="login-notice" role="status" th:if="${param.logout}">Hai effettuato l’uscita correttamente.</p>
+
+      <!-- Spring Security e Thymeleaf inseriscono automaticamente il campo CSRF nei form POST con th:action. -->
+      <form id="loginForm" class="login-form" th:action="@{/login}" action="/login" method="post">
+        <div class="login-field form-field">
+          <label for="username">Nome utente</label>
+          <div class="login-input-wrap">
+            <svg class="login-field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.7 20c.3-4.2 3-6.4 7.3-6.4s7 2.2 7.3 6.4"/></svg>
+            <input type="text" id="username" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="80" required placeholder="Inserisci il nome utente">
+          </div>
+        </div>
+        <div class="login-field form-field">
+          <label for="password">Password</label>
+          <div class="login-input-wrap login-password-wrap">
+            <svg class="login-field-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" id="password" name="password" autocomplete="current-password" maxlength="128" required placeholder="Inserisci la password">
+            <button id="togglePassword" class="password-toggle" type="button" aria-label="Mostra password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <p id="loginError" class="login-error" role="alert" th:if="${param.error}">Nome utente o password non corretti.</p>
+        <button class="primary-button login-submit" type="submit">Accedi</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="login-footer">Banco Alimentare Campania</footer>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/app-layout :: layout(~{::main}, 'Dettaglio richiesta', 'OPT', 'requests')}">
+<head><title>PICUS · Dettaglio richiesta</title></head>
+<body>
+  <main class="main" id="main-content" tabindex="-1">
+    <div class="content form-content">
+      <nav class="breadcrumbs" aria-label="Percorso di navigazione">
+        <a th:href="@{/opt/requests}" href="/opt/requests">Le mie richieste</a>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        <span aria-current="page">Dettaglio richiesta</span>
+      </nav>
+      <div class="page-heading form-page-heading">
+        <h1>Dettaglio richiesta</h1>
+        <p>Consulta le informazioni e lo stato della richiesta inviata al Banco Alimentare.</p>
+      </div>
+
+      <section class="detail-section" aria-labelledby="detailSectionTitle">
+        <div class="section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5v-2h6v2M8.5 10h7M8.5 14h7M8.5 18h5"/></svg>
+        </div>
+        <h2 id="detailSectionTitle">Informazioni della richiesta</h2>
+        <dl class="detail-grid">
+          <div class="detail-field">
+            <dt>Identificativo pratica</dt>
+            <dd class="detail-id" th:text="${request.id}">—</dd>
+          </div>
+          <div class="detail-field">
+            <dt>Data di invio</dt>
+            <dd th:text="${request.dataInvio}">—</dd>
+          </div>
+          <div class="detail-field detail-field-wide">
+            <dt>Misura richiesta</dt>
+            <dd th:text="${request.misuraRichiesta}">—</dd>
+          </div>
+          <div class="detail-field">
+            <dt>Stato</dt>
+            <dd>
+              <span class="status-pill" th:classappend="${request.statoClasse}">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4l3 3M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18"/></svg>
+                <span th:text="${request.statoLabel}">Da valutare</span>
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <div class="detail-actions">
+        <a class="secondary-button" th:href="@{/opt/requests}" href="/opt/requests">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6M9 12h12"/></svg>
+          Torna alle richieste
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

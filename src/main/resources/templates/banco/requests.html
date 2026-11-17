@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/app-layout :: layout(~{::main}, 'Richieste ricevute', 'BANCO', 'requests')}">
+<head><title>PICUS · Richieste ricevute</title></head>
+<body>
+<main class="main" id="main-content" tabindex="-1">
+  <div class="content">
+    <div class="page-heading">
+      <h1>Richieste ricevute</h1>
+      <p>Consulta le richieste delle organizzazioni partner e avvia la loro elaborazione.</p>
+    </div>
+    <section class="requests" aria-label="Elenco delle richieste ricevute">
+      <div class="toolbar" role="search">
+        <div class="toolbar-left">
+          <label class="search-field" for="bancoSearchRequests">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m16 16 4.5 4.5"/></svg>
+            <span class="sr-only">Cerca per ID pratica, misura o identificativo OPT</span>
+            <input id="bancoSearchRequests" type="search" autocomplete="off" placeholder="Cerca per pratica, misura o OPT...">
+          </label>
+          <div class="toolbar-divider" aria-hidden="true"></div>
+          <label class="status-filter" for="bancoStatusFilter">
+            <span class="sr-only">Filtra per stato</span>
+            <select id="bancoStatusFilter">
+              <option value="all">Stato: tutti</option>
+              <option value="DA_VALUTARE">Da valutare</option>
+              <option value="IN_ELABORAZIONE">In elaborazione</option>
+            </select>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </label>
+          <button type="button" id="bancoResetFilters" class="reset-filter" hidden>Reimposta</button>
+        </div>
+        <div class="toolbar-right">
+          <span id="bancoResultCount" class="result-count" aria-live="polite"
+                th:text="|${#lists.size(requests)} richieste|">0 richieste</span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="requests-table banco-table">
+          <thead><tr>
+            <th scope="col">DATA INVIO</th>
+            <th scope="col">OPT MITTENTE</th>
+            <th scope="col">STATO</th>
+            <th scope="col">ID PRATICA</th>
+            <th scope="col">MISURA RICHIESTA</th>
+            <th scope="col">ELABORAZIONE</th>
+            <th scope="col" class="actions-heading"><span class="sr-only">Dettaglio</span></th>
+          </tr></thead>
+          <tbody id="bancoRequestsBody">
+            <tr class="request-row" th:each="request : ${requests}"
+                th:attr="data-status=${request.stato},data-search=${request.searchText}">
+              <td class="date-cell" th:text="${request.dataInvio}">—</td>
+              <td class="banco-organization" th:text="${request.organizationLabel}">—</td>
+              <td><span class="status-pill" th:classappend="${request.avviabile} ? 'to-evaluate' : 'processing'">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4l3 3M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18"/></svg>
+                <span th:text="${request.statoLabel}">Da valutare</span></span>
+              </td>
+              <td><abbr class="id-code" th:text="${request.idBreve}" th:title="${request.id}">—</abbr></td>
+              <td class="measure-cell" th:text="${request.misuraRichiesta}">—</td>
+              <td class="banco-processing-cell">
+                <form th:if="${request.avviabile}" method="post" class="banco-start-form js-confirm-start"
+                      th:action="@{/banco/requests/{id}/start(id=${request.id})}">
+                  <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                  <button class="banco-inline-start" type="submit">Avvia elaborazione</button>
+                </form>
+                <button th:unless="${request.avviabile}" type="button" class="banco-inline-start" disabled>In elaborazione</button>
+              </td>
+              <td class="banco-action-cell"><a class="action-detail" th:href="@{/banco/requests/{id}(id=${request.id})}">Dettaglio
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="bancoMobileCards" class="mobile-cards" aria-label="Richieste ricevute per dispositivi mobili">
+        <article class="mobile-card request-card" th:each="request : ${requests}"
+                 th:attr="data-status=${request.stato},data-search=${request.searchText}">
+          <div class="mobile-card-top">
+            <span class="status-pill" th:classappend="${request.avviabile} ? 'to-evaluate' : 'processing'">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 8v4l3 3M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18"/></svg>
+              <span th:text="${request.statoLabel}">Da valutare</span>
+            </span>
+            <span class="mobile-date" th:text="${request.dataInvio}">—</span>
+          </div>
+          <p class="banco-mobile-org" th:text="${request.organizationLabel}">—</p>
+          <h2 class="mobile-measure" th:text="${request.misuraRichiesta}">—</h2>
+          <div class="banco-mobile-processing">
+            <form th:if="${request.avviabile}" method="post" class="banco-start-form js-confirm-start"
+                  th:action="@{/banco/requests/{id}/start(id=${request.id})}">
+              <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+              <button class="banco-inline-start" type="submit">Avvia elaborazione</button>
+            </form>
+            <button th:unless="${request.avviabile}" type="button" class="banco-inline-start" disabled>In elaborazione</button>
+          </div>
+          <div class="mobile-card-bottom">
+            <abbr class="id-code" th:text="${request.idBreve}" th:title="${request.id}">—</abbr>
+            <a class="action-detail" th:href="@{/banco/requests/{id}(id=${request.id})}">Dettaglio
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+          </div>
+        </article>
+      </div>
+      <p class="empty-state" id="bancoEmptyState" role="status"
+         th:hidden="${not #lists.isEmpty(requests)}" hidden>Nessuna richiesta corrisponde ai filtri selezionati.</p>
+      <div class="pagination" aria-label="Paginazione richieste">
+        <span id="bancoRangeCount">0 richieste</span>
+        <button id="bancoPreviousPage" class="pagination-button" type="button" aria-label="Pagina precedente" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span class="page-number" id="bancoPageNumber" aria-live="polite">1 / 1</span>
+        <button id="bancoNextPage" class="pagination-button" type="button" aria-label="Pagina successiva" disabled>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </section>
+  </div>
+  <dialog class="confirmation-dialog" id="bancoConfirmDialog" aria-labelledby="bancoConfirmTitle" aria-describedby="bancoConfirmDescription">
+    <div class="confirm-icon" aria-hidden="true">!</div>
+    <h2 id="bancoConfirmTitle">Avviare l'elaborazione?</h2>
+    <p id="bancoConfirmDescription">La richiesta passerà dallo stato “Da valutare” a “In elaborazione”.</p>
+    <div class="confirmation-actions">
+      <button class="secondary-button" type="button" id="bancoCancelProcessing">Annulla</button>
+      <button class="primary-button" type="button" id="bancoConfirmProcessing">Conferma</button>
+    </div>
+  </dialog>
+</main>
+</body>
+</html>
